@@ -1,0 +1,79 @@
+SHOW DATABASES;
+
+CREATE DATABASE student_info;
+USE student_info;
+DROP TABLE IF EXISTS Students;
+CREATE TABLE Students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Papers (
+    title VARCHAR(100) NOT NULL,
+    grade INT NOT NULL,
+    Student_id INT,
+    FOREIGN KEY (Student_id)
+        REFERENCES Students (id)
+);
+DESC Papers;
+#feeding the data
+INSERT INTO students (first_name) VALUES 
+('Caleb'), ('Samantha'), ('Raj'), ('Carlos'), ('Lisa');
+SELECT * FROM students;
+INSERT INTO papers (student_id, title, grade ) VALUES
+(1, 'My First Book Report', 60),
+(1, 'My Second Book Report', 75),
+(2, 'Russian Lit Through The Ages', 94),
+(2, 'De Montaigne and The Art of The Essay', 98),
+(4, 'Borges and Magical Realism', 89);
+SELECT * FROM papers;
+#q1 - INNER JOIN
+SELECT 
+    first_name, title, grade
+FROM
+    students
+        INNER JOIN
+    papers ON students.id = papers.student_id;
+#could have achieved the same using right join coz all papers have student_id
+    
+#q2- Left join since we are talking about all records of first table
+SELECT 
+    first_name, title, grade
+FROM
+    students
+        LEFT JOIN
+    papers ON students.id = papers.student_id;
+    
+#q3- left join with if null
+SELECT 
+    first_name, IFNULL(title, 'MISSING'), IFNULL(grade, 0)
+FROM
+    students
+        LEFT JOIN
+    papers ON students.id = papers.student_id;
+    
+#q4 - with avg
+SELECT 
+    First_name, IFNULL(AVG(grade), 0) AS average
+FROM
+    students
+        LEFT JOIN
+    papers ON students.id = papers.student_id
+GROUP BY first_name;
+#could have grouped by students.id
+
+#now further adding passing status- pass if avg is greater or equal to 75
+SELECT 
+    first_name,
+    IFNULL(AVG(grade), 0) AS average,
+    CASE
+        WHEN AVG(grade) >= 75 THEN 'Passing'
+        ELSE 'Failing'
+    END AS passing_status
+FROM
+    students
+        LEFT JOIN
+    papers ON students.id = papers.student_id
+GROUP BY first_name
+ORDER BY AVG(grade) DESC;
+#when AVG(grade) IS NULL
